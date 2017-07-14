@@ -26,3 +26,7 @@
 	path = bewalgo-boolean-vs-binary-operator
 	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
 	branch = bewalgo-boolean-vs-binary-operator
+[submodule "bewalgo-if-vs-terniary"]
+	path = bewalgo-if-vs-terniary
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = bewalgo-if-vs-terniary
