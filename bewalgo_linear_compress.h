@@ -129,7 +129,8 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		if (safe_mode) {
 			INC_COUNTER_COMPRESSOR;
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			int tmp_literal_length = length if (op_control_available) {
+			int tmp_literal_length = length;
+			 if (op_control_available) {
 				INC_COUNTER_COMPRESSOR;
 				tmp_literal_length -= BEWALGO_LENGTH_MAX;
 			}
@@ -218,7 +219,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			}
 			if (op_control_available <= 0) {
 				INC_COUNTER_COMPRESSOR;
-				op_control (BYTE*) op;
+				op_control = (BYTE*) op;
 			}
 			*((U32*) op_control) = control_match_value;
 			match_length_div_255 -= op_control_available > 0;
