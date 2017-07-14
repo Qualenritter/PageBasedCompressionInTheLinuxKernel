@@ -1,5 +1,3 @@
-obj-m += bewalgo_compress_test_U32.o
-obj-m += bewalgo_compress_test_U64.o
 obj-m += bewalgo_compress_test_time_U32.o
 obj-m += bewalgo_compress_test_time_U64.o
 
