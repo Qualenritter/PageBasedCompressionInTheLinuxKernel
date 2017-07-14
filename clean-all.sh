@@ -1,5 +1,11 @@
 #!/bin/bash
 function removeModules {
+	rmmod bewalgo_compress_test_U64
+	rmmod bewalgo_compress_test_time_U64
+	rmmod bewalgo_compress_test_U32
+	rmmod bewalgo_compress_test_time_U32
+	rmmod bewalgo_compress_test_LZ4
+	rmmod bewalgo_compress_test_time_LZ4
 	rmmod bewalgo_parallel_compressor
 	rmmod bewalgo_parallel_compress_worker
 	rmmod bewalgo_linear_compressor_U32
