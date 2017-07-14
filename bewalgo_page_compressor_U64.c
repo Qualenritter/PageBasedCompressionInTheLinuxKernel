@@ -20,7 +20,7 @@ const generic_compressor bewalgo_generic_compressor_page_U64 = {.compress_defaul
 																.decompress_fast				 = &bewalgo_page_decompress_fast_U64,
 																.generic_compressor_memory		 = GENERIC_COMPRESSOR_PAGE,
 																.compress_bound					 = &bewalgo_compress_bound,
-																.compressor_name				 = "BeWalgo64-page",
+																.compressor_name				 = "BeWalgo64-page-no-inline",
 																.compress_wrkmem				 = sizeof (bewalgo_compress_internal),
 																.generic_compressor_concatenable = GENERIC_COMPRESSOR_CONCATABLE };
 EXPORT_SYMBOL (bewalgo_generic_compressor_page_U64);

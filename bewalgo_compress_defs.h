@@ -7,7 +7,7 @@
 
 #ifndef BEWALGO_COMPRESS_DEFS_H_
 #define BEWALGO_COMPRESS_DEFS_H_
-#define bewalgo_compress_always_inline __always_inline
+#define bewalgo_compress_always_inline
 #include "bewalgo_compressor.h"
 #include "config.h"
 #include "interfaces/file_helper.h"

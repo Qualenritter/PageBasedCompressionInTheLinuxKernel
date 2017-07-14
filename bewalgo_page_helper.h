@@ -63,7 +63,7 @@ static U64 counters[counters_size];
 #endif /* !LOG_STATISTICS */
 
 #ifndef bewalgo_compress_always_inline
-#define bewalgo_compress_always_inline __always_inline
+#define bewalgo_compress_always_inline
 #endif /* bewalgo_compress_always_inline */
 
 /* local helper functions -->> */
