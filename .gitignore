@@ -9,4 +9,5 @@
 *.o.d
 /.project
 /.cproject
+/.settings
 .DS_Store
