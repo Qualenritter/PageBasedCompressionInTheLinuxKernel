@@ -25,7 +25,7 @@ if [ "$?" -eq "0" ]; then
 			sourcefilelength=`du --bytes "${filenames[$fileindex]}" | cut -f1`
 			sourcefilelength=$(( $sourcefilelength / 8 ))
 			sourcefilelength=$(( $sourcefilelength * 8 ))
-			for var_accelleration in 1 2 4 8 16 32 64 128 256 512 1024
+			for var_accelleration in 1 2 4 8
 			do
 				echo "var_accelleration=${var_accelleration} var_datatype=${var_datatype} sourcefilelength=${sourcefilelength} filename=${filenames[$fileindex]} "
 				insmod "bewalgo_compress_test_${var_datatype}.ko" input_file_length=$sourcefilelength input_file_name="${filenames[$fileindex]}" input_file_name_short="${shortfilenames[$fileindex]}-$sourcefilelength" acceleration=$var_accelleration
