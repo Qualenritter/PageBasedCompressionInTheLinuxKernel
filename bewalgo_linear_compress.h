@@ -66,7 +66,10 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 #else
 		length = source_end_ptr_2 - ip;
 #endif
-		j = j < length ? j : length;
+		if (j >= length) {
+			INC_COUNTER_COMPRESSOR;
+			j = length;
+		}
 		for (length = 1; length <= j; length++) {
 			/* search for next match stepsize = 1*/
 			INC_COUNTER_COMPRESSOR;
@@ -126,7 +129,10 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		if (safe_mode) {
 			INC_COUNTER_COMPRESSOR;
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			int tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
+			int tmp_literal_length = length if (op_control_available) {
+				INC_COUNTER_COMPRESSOR;
+				tmp_literal_length -= BEWALGO_LENGTH_MAX;
+			}
 			if (unlikely (op + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end_ptr)) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error;
@@ -210,7 +216,10 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 					goto _error;
 				}
 			}
-			op_control			 = op_control_available > 0 ? op_control : (BYTE*) op;
+			if (op_control_available <= 0) {
+				INC_COUNTER_COMPRESSOR;
+				op_control (BYTE*) op;
+			}
 			*((U32*) op_control) = control_match_value;
 			match_length_div_255 -= op_control_available > 0;
 			{
@@ -228,7 +237,13 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 				op_control										   = ((BYTE*) op) - 4;
 				*(U32*) (op_control + (match_nzero_nodd << 3))	 = 0;
 				*(U32*) (op_control + (match_nzero_nodd << 2) + 0) = 0;
-				*(op_control + (match_nzero_nodd << 2) + 1)		   = (match_zero & match_nodd) ? BEWALGO_LENGTH_MAX : match_length_mod_255;
+				if (match_zero & match_nodd) {
+					INC_COUNTER_COMPRESSOR;
+					*(op_control + (match_nzero_nodd << 2) + 1) = BEWALGO_LENGTH_MAX;
+				} else {
+					INC_COUNTER_COMPRESSOR;
+					*(op_control + (match_nzero_nodd << 2) + 1) = match_length_mod_255;
+				}
 				*(U16*) (op_control + (match_nzero_nodd << 2) + 2) = offset;
 				op_control += match_nzero_nodd << 3;
 				op += match_nzero_nodd;
@@ -312,7 +327,11 @@ _encode_last_literal:
 	if (safe_mode) {
 		INC_COUNTER_COMPRESSOR;
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		int tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
+		int tmp_literal_length = length;
+		if (op_control_available) {
+			INC_COUNTER_COMPRESSOR;
+			tmp_literal_length -= BEWALGO_LENGTH_MAX;
+		}
 		if (op + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end_ptr) {
 			INC_COUNTER_COMPRESSOR;
 			goto _error;

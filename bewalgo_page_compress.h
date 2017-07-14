@@ -80,9 +80,15 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 #else
 		k = source_end_2 - ip->position;
 #endif
-		j = j < k ? j : k;
+		if (j >= k) {
+			INC_COUNTER_COMPRESSOR;
+			j = k;
+		}
 		k = ip->page_pointer_end - ip->page_pointer - 1;
-		j = j < k ? j : k;
+		if (j >= k) {
+			INC_COUNTER_COMPRESSOR;
+			j = k;
+		}
 		for (searchTrigger = 1; searchTrigger <= j; searchTrigger++) {
 			/* search for a match stepsize = 1 on the current page*/
 			INC_COUNTER_COMPRESSOR;
@@ -225,9 +231,15 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 			}
 			tmpu32 = ip->position + (searchTrigger++ >> BEWALGO_SKIPTRIGGER);
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			tmpu32 = tmpu32 >= source_end ? source_end : tmpu32;
+			if (tmpu32 >= source_end) {
+				INC_COUNTER_COMPRESSOR;
+				tmpu32 = source_end;
+			}
 #else
-			tmpu32 = tmpu32 >= source_end_1 ? source_end : tmpu32;
+			if (tmpu32 >= source_end_1) {
+				INC_COUNTER_COMPRESSOR;
+				tmpu32 = source_end;
+			}
 #endif
 			ip->page_index		 = tmpu32 >> BEWALGO_COMPRESS_PAGE_SHIFT;
 			ip->page_pointer	 = ip->page_mapped[ip->page_index];
@@ -282,7 +294,11 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 		if (safe_mode) {
 			INC_COUNTER_COMPRESSOR;
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
+			tmp_literal_length = length;
+			if (op_control_available) {
+				INC_COUNTER_COMPRESSOR;
+				tmp_literal_length -= BEWALGO_LENGTH_MAX;
+			}
 			if (unlikely (op->position + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end)) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error_dest_end;
@@ -393,9 +409,15 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 			}
 			tmpu32 = ip->page_pointer_end - ip->page_pointer;
 			i	  = match->page_pointer_end - match->page_pointer;
-			tmpu32 = i < tmpu32 ? i : tmpu32;
-			i	  = source_end - ip->position;
-			tmpu32 = i < tmpu32 ? i : tmpu32;
+			if (i < tmpu32) {
+				INC_COUNTER_COMPRESSOR;
+				tmpu32 = i;
+			}
+			i = source_end - ip->position;
+			if (i < tmpu32) {
+				INC_COUNTER_COMPRESSOR;
+				tmpu32 = i;
+			}
 			for (i = 0; i < tmpu32; i++) {
 				/* most high frequent loop in the code*/
 				INC_COUNTER_COMPRESSOR;
@@ -588,7 +610,11 @@ _encode_last_literal:
 	if (safe_mode) {
 		INC_COUNTER_COMPRESSOR;
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
+		tmp_literal_length = length;
+		if (op_control_available) {
+			INC_COUNTER_COMPRESSOR;
+			tmp_literal_length -= BEWALGO_LENGTH_MAX;
+		}
 		if (op->position + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end) {
 			INC_COUNTER_COMPRESSOR;
 			goto _error_dest_end;
