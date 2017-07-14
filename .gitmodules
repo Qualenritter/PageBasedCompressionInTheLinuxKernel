@@ -1,0 +1,16 @@
+[submodule "interfaces"]
+	path = interfaces
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = interfaces
+[submodule "compression-bewalgo"]
+	path = compression-bewalgo
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = bewalgo
+[submodule "compression-memcpy"]
+	path = compression-memcpy
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = memcpy
+[submodule "compression-lz4"]
+	path = compression-lz4
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = lz4
