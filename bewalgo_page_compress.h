@@ -271,100 +271,17 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 		ip->page_pointer++;
 	_encode_literal:
 		/* encode the literal */
+		/* write code omited - remaining code rearanged*/
 		INC_COUNTER_COMPRESSOR;
+		/* 'ip' and 'match' pointing to the begin of the match */
+		length					 = ip->position - anchor->position; /* length of the literal */
+		anchor->position		 = ip->position;
 		anchor->page_index		 = anchor->position >> BEWALGO_COMPRESS_PAGE_SHIFT;
 		anchor->page_pointer	 = anchor->page_mapped[anchor->page_index];
 		anchor->page_pointer_end = anchor->page_mapped[anchor->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
 		anchor->page_pointer += anchor->position & BEWALGO_COMPRESS_PAGE_OFFSET_MASK;
-		/* 'ip' and 'match' pointing to the begin of the match */
-		length = ip->position - anchor->position; /* length of the literal */
-		/*		APPEND_LOG ("literal,%d\n", length); */
-		if (safe_mode) {
-			INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
-			if (unlikely (op->position + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end)) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error_dest_end;
-			}
-#else
-			if (unlikely (op->position + (length / BEWALGO_LENGTH_MAX) + ((length % BEWALGO_LENGTH_MAX) > 0) + length > dest_end)) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error_dest_end;
-			}
-#endif
-		}
-		while (length > BEWALGO_LENGTH_MAX) {
-			/* encode a long match */
-			INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			if (op_control_available == 0) {
-				INC_COUNTER_COMPRESSOR;
-				if (op->page_pointer == op->page_pointer_end) {
-					INC_COUNTER_COMPRESSOR;
-					op->page_index++;
-					op->page_pointer	 = op->page_mapped[op->page_index];
-					op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-				}
-				*(op->page_pointer) = 0;
-				op_control			= (BYTE*) (op->page_pointer);
-				op->position++;
-				op->page_pointer++;
-			}
-			op_control_available = !op_control_available;
-			*op_control			 = BEWALGO_LENGTH_MAX;
-			op_control += 4;
-#else
-			if (op->page_pointer == op->page_pointer_end) {
-				INC_COUNTER_COMPRESSOR;
-				op->page_index++;
-				op->page_pointer	 = op->page_mapped[op->page_index];
-				op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-			}
-			*op->page_pointer			= 0;
-			*((BYTE*) op->page_pointer) = BEWALGO_LENGTH_MAX;
-			op->position++;
-			op->page_pointer++;
-			op_control = (BYTE*) op->page_pointer;
-#endif
-			bewalgo_page_helper_copy (op, anchor, BEWALGO_LENGTH_MAX);
-			length -= BEWALGO_LENGTH_MAX;
-		}
-		if (likely (length > 0)) {
-			/* encode the short (end of) a literal */
-			INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			if (op_control_available == 0) {
-				INC_COUNTER_COMPRESSOR;
-				if (op->page_pointer == op->page_pointer_end) {
-					INC_COUNTER_COMPRESSOR;
-					op->page_index++;
-					op->page_pointer	 = op->page_mapped[op->page_index];
-					op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-				}
-				*(op->page_pointer) = 0;
-				op_control			= (BYTE*) (op->page_pointer);
-				op->position++;
-				op->page_pointer++;
-			}
-			op_control_available = !op_control_available;
-			*op_control			 = length;
-			op_control += 4;
-#else
-			if (op->page_pointer == op->page_pointer_end) {
-				INC_COUNTER_COMPRESSOR;
-				op->page_index++;
-				op->page_pointer	 = op->page_mapped[op->page_index];
-				op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-			}
-			*op->page_pointer			= 0;
-			*((BYTE*) op->page_pointer) = length;
-			op->position++;
-			op->page_pointer++;
-			op_control = (BYTE*) op->page_pointer;
-#endif
-			bewalgo_page_helper_copy (op, anchor, length);
-		}
+	/*		APPEND_LOG ("literal,%d\n", length); */
+
 	_find_match_right:
 		/* find the right end of a match */
 		INC_COUNTER_COMPRESSOR;
@@ -423,103 +340,7 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 		offset = ip->position - match->position;
 		/* 		APPEND_LOG ("match,%d\n", length); */
 		/* 		APPEND_LOG ("offset,%d\n", offset); */
-		if (length > BEWALGO_LENGTH_MAX) {
-			/* encode a long match */
-			INC_COUNTER_COMPRESSOR;
-			match_length_div_255 = length / BEWALGO_LENGTH_MAX;
-			match_length_mod_255 = length % BEWALGO_LENGTH_MAX;
-			match_zero			 = match_length_mod_255 == 0;
-			match_nzero			 = !match_zero;
-			tmpu32				 = (BEWALGO_LENGTH_MAX << 8) + (((U32) offset) << 16);
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			if (safe_mode) {
-				int control_blocks_needed = match_length_div_255 + match_nzero - op_control_available;
-				INC_COUNTER_COMPRESSOR;
-				if (safe_mode & unlikely ((op->position + (((control_blocks_needed) >> 1) + (control_blocks_needed & 1))) > dest_end)) {
-					INC_COUNTER_COMPRESSOR;
-					goto _error_dest_end;
-				}
-			}
-			if (op_control_available > 0) {
-				INC_COUNTER_COMPRESSOR;
-				op_control_available = 0;
-				*((U32*) op_control) = tmpu32;
-				op_control += 4;
-				match_length_div_255--;
-			}
-			if (match_length_div_255 > 1) {
-				INC_COUNTER_COMPRESSOR;
-				bewalgo_page_helper_set (op, tmpu32, match_length_div_255);
-				op_control = (BYTE*) (op->page_pointer);
-			}
-			if (match_length_div_255 & 1) {
-				INC_COUNTER_COMPRESSOR;
-				if (unlikely (op->page_pointer == op->page_pointer_end)) {
-					INC_COUNTER_COMPRESSOR;
-					op->page_index++;
-					op->page_pointer	 = op->page_mapped[op->page_index];
-					op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-				}
-				*op->page_pointer		   = 0;
-				*((U32*) op->page_pointer) = tmpu32;
-				op_control				   = (BYTE*) op->page_pointer;
-				op_control += 4;
-				op->position++;
-				op->page_pointer++;
-				op_control_available = 1;
-			}
-			length = match_length_mod_255;
-#else
-			if (safe_mode & unlikely ((op->position + match_length_div_255 + match_nzero) > dest_end)) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error_dest_end;
-			}
-			bewalgo_page_helper_set (op, tmpu32, match_length_div_255);
-			length	 = match_length_mod_255;
-			op_control = (BYTE*) op->page_pointer;
-#endif
-		}
-		if (likely (length > 0)) {
-			/* encode a short (end of) a match */
-			INC_COUNTER_COMPRESSOR;
-			if (safe_mode & unlikely ((op_control_available == 0) & (op->position >= dest_end) & (op_control[-3] != 0))) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error_dest_end;
-			}
-			if ((*(op_control - 3) != 0)) { /*last control-block contained an match*/
-				INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-				if (op_control_available == 0) {
-					INC_COUNTER_COMPRESSOR;
-					if (op->page_pointer == op->page_pointer_end) {
-						INC_COUNTER_COMPRESSOR;
-						op->page_index++;
-						op->page_pointer	 = op->page_mapped[op->page_index];
-						op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-					}
-					*(op->page_pointer) = 0;
-					op_control			= (BYTE*) (op->page_pointer);
-					op->position++;
-					op->page_pointer++;
-				}
-				op_control_available = !op_control_available;
-				op_control += 4;
-#else
-				if (op->page_pointer == op->page_pointer_end) {
-					INC_COUNTER_COMPRESSOR;
-					op->page_index++;
-					op->page_pointer	 = op->page_mapped[op->page_index];
-					op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-				}
-				*op->page_pointer = 0;
-				op->position++;
-				op->page_pointer++;
-				op_control = (BYTE*) op->page_pointer;
-#endif
-			} /*last control-block was only a literal*/
-			op_control[-3]			= length;
-			((U16*) op_control)[-1] = offset;
-		}
+		/* write code omited */
 		anchor->position = ip->position;
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
 		if (unlikely (ip->position == source_end)) {
@@ -584,87 +405,9 @@ _encode_last_literal:
 	anchor->page_pointer += anchor->position & BEWALGO_COMPRESS_PAGE_OFFSET_MASK;
 	/* 'ip' and 'match' pointing to the begin of the match */
 	length = ip->position - anchor->position;
-	/* 		APPEND_LOG ("literal,%d\n", length); */
-	if (safe_mode) {
-		INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
-		if (op->position + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end) {
-			INC_COUNTER_COMPRESSOR;
-			goto _error_dest_end;
-		}
-#else
-		if (op->position + (length / BEWALGO_LENGTH_MAX) + ((length % BEWALGO_LENGTH_MAX) > 0) + length > dest_end) {
-			INC_COUNTER_COMPRESSOR;
-			goto _error_dest_end;
-		}
-#endif
-	}
-	while (length > BEWALGO_LENGTH_MAX) {
-		INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		if (op_control_available == 0) {
-			INC_COUNTER_COMPRESSOR;
-			if (op->page_pointer == op->page_pointer_end) {
-				INC_COUNTER_COMPRESSOR;
-				op->page_index++;
-				op->page_pointer	 = op->page_mapped[op->page_index];
-				op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-			}
-			*(op->page_pointer) = 0;
-			op_control			= (BYTE*) (op->page_pointer);
-			op->position++;
-			op->page_pointer++;
-		}
-		op_control_available = !op_control_available;
-#else
-		if (op->page_pointer == op->page_pointer_end) {
-			INC_COUNTER_COMPRESSOR;
-			op->page_index++;
-			op->page_pointer	 = op->page_mapped[op->page_index];
-			op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-		}
-		*(op->page_pointer) = 0;
-		op_control			= (BYTE*) (op->page_pointer);
-		op->position++;
-		op->page_pointer++;
-#endif
-		*op_control = BEWALGO_LENGTH_MAX;
-		op_control += 4;
-		bewalgo_page_helper_copy (op, anchor, BEWALGO_LENGTH_MAX);
-		length -= BEWALGO_LENGTH_MAX;
-	}
-	if (likely (length > 0)) {
-		INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		if (op_control_available == 0) {
-			INC_COUNTER_COMPRESSOR;
-			if (op->page_pointer == op->page_pointer_end) {
-				INC_COUNTER_COMPRESSOR;
-				op->page_index++;
-				op->page_pointer	 = op->page_mapped[op->page_index];
-				op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-			}
-			*(op->page_pointer) = 0;
-			op_control			= (BYTE*) (op->page_pointer);
-			op->position++;
-			op->page_pointer++;
-		}
-#else
-		if (op->page_pointer == op->page_pointer_end) {
-			INC_COUNTER_COMPRESSOR;
-			op->page_index++;
-			op->page_pointer	 = op->page_mapped[op->page_index];
-			op->page_pointer_end = op->page_mapped[op->page_index] + BEWALGO_COMPRESS_PAGE_SIZE;
-		}
-		*(op->page_pointer) = 0;
-		op_control			= (BYTE*) (op->page_pointer);
-		op->position++;
-		op->page_pointer++;
-#endif
-		*op_control = length;
-		bewalgo_page_helper_copy (op, anchor, length);
-	}
+/* 		APPEND_LOG ("literal,%d\n", length); */
+
+/* write code omited */
 _finish:
 #ifdef LOG_STATISTICS
 	for (h = 0; h < counters_size; h++) {
@@ -676,7 +419,7 @@ _finish:
 #endif
 	bewalgo_page_helper_free (match);
 	bewalgo_page_helper_free (anchor);
-	return op->position << BEWALGO_COMPRESS_DATA_TYPE_SHIFT;
+	return 0;
 _error_dest_end:
 #ifdef LOG_STATISTICS
 	for (h = 0; h < counters_size; h++) {

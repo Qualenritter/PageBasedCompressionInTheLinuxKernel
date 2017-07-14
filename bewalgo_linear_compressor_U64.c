@@ -30,7 +30,7 @@ const generic_compressor bewalgo_generic_compressor_linear_U64 = {.compress_defa
 																  .decompress_fast				   = &bewalgo_decompress_fast_U64,
 																  .generic_compressor_memory	   = GENERIC_COMPRESSOR_LINEAR,
 																  .compress_bound				   = &bewalgo_compress_bound,
-																  .compressor_name				   = "BeWalgo64-linear",
+																  .compressor_name				   = "BeWalgo64-linear-search-match-only",
 																  .compress_wrkmem				   = sizeof (bewalgo_compress_internal),
 																  .generic_compressor_concatenable = GENERIC_COMPRESSOR_CONCATABLE };
 EXPORT_SYMBOL (bewalgo_generic_compressor_linear_U64);

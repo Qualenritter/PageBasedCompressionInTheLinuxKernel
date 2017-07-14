@@ -120,64 +120,8 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 	_encode_literal:
 		/* save the found literal to output buffer */
 		INC_COUNTER_COMPRESSOR;
-		/* 'ip' and 'match' pointing to the begin of the match */
-		length = ip - anchor; /* length currently contains the length of the literal*/
-		/* APPEND_LOG ("literal,%zu\n", length); */
-		if (safe_mode) {
-			INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			int tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
-			if (unlikely (op + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end_ptr)) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error;
-			}
-#else
-			if (unlikely (op + (length / BEWALGO_LENGTH_MAX) + ((length % BEWALGO_LENGTH_MAX) > 0) + length > dest_end_ptr)) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error;
-			}
-#endif
-		}
-		while (length > BEWALGO_LENGTH_MAX) {
-			/* encode a long literal */
-			INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			if (op_control_available == 0) {
-				INC_COUNTER_COMPRESSOR;
-				op_control = (BYTE*) op;
-				*op++	  = 0;
-			}
-			op_control_available = !op_control_available;
-			*op_control			 = BEWALGO_LENGTH_MAX;
-			op_control += 4;
-#else
-			*op++		   = 0;
-			op_control	 = (BYTE*) op;
-			op_control[-4] = BEWALGO_LENGTH_MAX;
-#endif
-			target = anchor + BEWALGO_LENGTH_MAX;
-			bewalgo_copy_helper_src (op, anchor, target);
-			length -= BEWALGO_LENGTH_MAX;
-		}
-		if (likely (length > 0)) {
-			/* encode the short (end of) a literal */
-			INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			if (op_control_available == 0) {
-				INC_COUNTER_COMPRESSOR;
-				op_control = (BYTE*) op;
-				*op++	  = 0;
-			}
-			op_control_available = !op_control_available;
-			*op_control			 = length;
-			op_control += 4;
-#else
-			*op++		   = 0;
-			op_control	 = (BYTE*) op;
-			op_control[-4] = length;
-#endif
-			bewalgo_copy_helper_src (op, anchor, ip);
-		}
+		/* write code omited */
+		ip = anchor;
 	_find_match_right:
 		/* find the right end of a match */
 		INC_COUNTER_COMPRESSOR;
@@ -191,93 +135,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		length = ip - anchor; /* length currently contains the length of the match*/
 		offset = ip - match;
 		anchor = ip;
-		/* APPEND_LOG ("match,%zu\n", length); */
-		/* APPEND_LOG ("offset,%d\n", offset); */
-		if (length > BEWALGO_LENGTH_MAX) {
-			/* encode a long match */
-			INC_COUNTER_COMPRESSOR;
-			U32	control_match_value  = (BEWALGO_LENGTH_MAX << 8) | (offset << 16);
-			size_t match_length_div_255 = length / 255;
-			size_t match_length_mod_255 = length % 255;
-			int	match_zero			= match_length_mod_255 == 0;
-			int	match_nzero			= !match_zero;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			if (safe_mode == BEWALGO_SAFE) {
-				INC_COUNTER_COMPRESSOR;
-				int control_blocks_needed = match_length_div_255 + match_nzero - op_control_available;
-				if (safe_mode & unlikely ((op + ((control_blocks_needed >> 1) + (control_blocks_needed & 1))) > dest_end_ptr)) {
-					INC_COUNTER_COMPRESSOR;
-					goto _error;
-				}
-			}
-			op_control			 = op_control_available > 0 ? op_control : (BYTE*) op;
-			*((U32*) op_control) = control_match_value;
-			match_length_div_255 -= op_control_available > 0;
-			{
-				int match_nodd		 = !(match_length_div_255 & 1);
-				int match_nzero_nodd = match_nzero && match_nodd;
-				if (match_length_div_255 > 0) {
-					INC_COUNTER_COMPRESSOR;
-					U64 control_match_value_long = control_match_value | (((U64) control_match_value) << 32);
-					target						 = op + (match_length_div_255 >> 1) + (match_length_div_255 & 1);
-					do {
-						INC_COUNTER_COMPRESSOR;
-						*op++ = control_match_value_long;
-					} while (op < target);
-				}
-				op_control										   = ((BYTE*) op) - 4;
-				*(U32*) (op_control + (match_nzero_nodd << 3))	 = 0;
-				*(U32*) (op_control + (match_nzero_nodd << 2) + 0) = 0;
-				*(op_control + (match_nzero_nodd << 2) + 1)		   = (match_zero & match_nodd) ? BEWALGO_LENGTH_MAX : match_length_mod_255;
-				*(U16*) (op_control + (match_nzero_nodd << 2) + 2) = offset;
-				op_control += match_nzero_nodd << 3;
-				op += match_nzero_nodd;
-				op_control_available = (match_length_div_255 & 1) == match_zero;
-			}
-#else
-			if (safe_mode & unlikely ((op + match_length_div_255 + match_nzero) > dest_end_ptr)) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error;
-			}
-			target = op + match_length_div_255;
-			while (op < target) {
-				INC_COUNTER_COMPRESSOR;
-				*op++ = control_match_value;
-			}
-			if (match_length_mod_255 > 0) {
-				INC_COUNTER_COMPRESSOR;
-				((BYTE*) op)[0] = 0;
-				((BYTE*) op)[1] = match_length_mod_255;
-				((U16*) op)[1]  = offset;
-				op++;
-			}
-			op_control	 = ((BYTE*) op);
-#endif
-		} else {
-			/* encode a short match */
-			INC_COUNTER_COMPRESSOR;
-			if (safe_mode & unlikely ((op_control_available == 0) & (op >= dest_end_ptr) & (op_control[-3] != 0))) {
-				INC_COUNTER_COMPRESSOR;
-				goto _error;
-			}
-			if (op_control[-3] != 0) {
-				INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-				if (op_control_available == 0) {
-					INC_COUNTER_COMPRESSOR;
-					op_control = (BYTE*) op;
-					*op++	  = 0;
-				}
-				op_control_available = !op_control_available;
-				op_control += 4;
-#else
-				*op++	  = 0;
-				op_control = (BYTE*) op;
-#endif
-			}
-			op_control[-3]			= length;
-			((U16*) op_control)[-1] = offset;
-		}
+/* write code omited */
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
 		if (unlikely (ip == source_end_ptr)) {
 			INC_COUNTER_COMPRESSOR;
@@ -306,64 +164,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 	} while (1);
 _encode_last_literal:
 	INC_COUNTER_COMPRESSOR;
-	/* 'ip' and 'match' pointing to the begin of the match */
-	length = source_end_ptr - anchor;
-	/* APPEND_LOG ("literal,%zu\n", length); */
-	if (safe_mode) {
-		INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		int tmp_literal_length = length - (op_control_available ? BEWALGO_LENGTH_MAX : 0);
-		if (op + (tmp_literal_length / (BEWALGO_LENGTH_MAX * 2)) + ((tmp_literal_length % (BEWALGO_LENGTH_MAX * 2)) > 0) + length > dest_end_ptr) {
-			INC_COUNTER_COMPRESSOR;
-			goto _error;
-		}
-#else
-		if (op + (length / BEWALGO_LENGTH_MAX) + ((length % BEWALGO_LENGTH_MAX) > 0) + length > dest_end_ptr) {
-			INC_COUNTER_COMPRESSOR;
-			goto _error;
-		}
-#endif
-	}
-	while (length > BEWALGO_LENGTH_MAX) {
-		/* encode a long literal*/
-		INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		if (op_control_available == 0) {
-			INC_COUNTER_COMPRESSOR;
-			op_control = (BYTE*) op;
-			*op++	  = 0;
-		}
-		op_control_available = !op_control_available;
-		*op_control			 = BEWALGO_LENGTH_MAX;
-		op_control += 4;
-#else
-		*op++		   = 0;
-		op_control	 = (BYTE*) op;
-		op_control[-4] = BEWALGO_LENGTH_MAX;
-#endif
-		target = anchor + BEWALGO_LENGTH_MAX;
-		bewalgo_copy_helper_src (op, anchor, target);
-		length -= BEWALGO_LENGTH_MAX;
-	}
-	if (length > 0) {
-		/* encode a short (end of) a literal*/
-		INC_COUNTER_COMPRESSOR;
-#if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-		if (op_control_available == 0) {
-			INC_COUNTER_COMPRESSOR;
-			op_control = (BYTE*) op;
-			*op++	  = 0;
-		}
-		op_control_available = !op_control_available;
-		*op_control			 = length;
-		op_control += 4;
-#else
-		*op++		   = 0;
-		op_control	 = (BYTE*) op;
-		op_control[-4] = length;
-#endif
-		bewalgo_copy_helper_src (op, anchor, source_end_ptr);
-	}
+/* write code omited */
 _finish:
 	INC_COUNTER_COMPRESSOR;
 #ifdef LOG_STATISTICS
@@ -374,7 +175,7 @@ _finish:
 	}
 	close_log_file ();
 #endif
-	return (op - dest) << BEWALGO_COMPRESS_DATA_TYPE_SHIFT;
+	return 1;
 _error:
 #ifdef LOG_STATISTICS
 	for (h = 0; h < counters_size; h++) {
