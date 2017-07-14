@@ -108,7 +108,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 	_find_match_left:
 		/* search for the left end of the match or the last already encoded data */
 		INC_COUNTER_COMPRESSOR;
-		while ((match != source) & (match[-1] == ip[-1])) {
+		while ((match != source) && (match[-1] == ip[-1])) {
 			INC_COUNTER_COMPRESSOR;
 			ip--;
 			match--;
@@ -185,7 +185,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			INC_COUNTER_COMPRESSOR;
 			ip++;
 			match++;
-		} while ((ip < source_end_ptr) & (*match == *ip));
+		} while ((ip < source_end_ptr) && (*match == *ip));
 		/*_encode_match:*/
 		/* 'ip' and 'match' pointing after the end of the match */
 		length = ip - anchor; /* length currently contains the length of the match*/
