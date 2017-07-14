@@ -1,0 +1,12 @@
+*.ko.cmd
+*.o.cmd
+*.ko
+*.o
+*.symvers
+*.order
+.tmp_versions
+*.mod.c
+*.o.d
+/.project
+/.cproject
+.DS_Store
