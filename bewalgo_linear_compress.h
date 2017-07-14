@@ -108,7 +108,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 	_find_match_left:
 		/* search for the left end of the match or the last already encoded data */
 		INC_COUNTER_COMPRESSOR;
-		while ((match != source) && (match[-1] == ip[-1])) {
+		while ((match != source) & (match[-1] == ip[-1])) {
 			INC_COUNTER_COMPRESSOR;
 			ip--;
 			match--;
@@ -185,7 +185,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			INC_COUNTER_COMPRESSOR;
 			ip++;
 			match++;
-		} while ((ip < source_end_ptr) && (*match == *ip));
+		} while ((ip < source_end_ptr) & (*match == *ip));
 		/*_encode_match:*/
 		/* 'ip' and 'match' pointing after the end of the match */
 		length = ip - anchor; /* length currently contains the length of the match*/
@@ -205,7 +205,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			if (safe_mode == BEWALGO_SAFE) {
 				INC_COUNTER_COMPRESSOR;
 				int control_blocks_needed = match_length_div_255 + match_nzero - op_control_available;
-				if (safe_mode && unlikely ((op + ((control_blocks_needed >> 1) + (control_blocks_needed & 1))) > dest_end_ptr)) {
+				if (safe_mode & unlikely ((op + ((control_blocks_needed >> 1) + (control_blocks_needed & 1))) > dest_end_ptr)) {
 					INC_COUNTER_COMPRESSOR;
 					goto _error;
 				}
@@ -235,7 +235,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 				op_control_available = (match_length_div_255 & 1) == match_zero;
 			}
 #else
-			if (safe_mode && unlikely ((op + match_length_div_255 + match_nzero) > dest_end_ptr)) {
+			if (safe_mode & unlikely ((op + match_length_div_255 + match_nzero) > dest_end_ptr)) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error;
 			}
@@ -256,7 +256,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		} else {
 			/* encode a short match */
 			INC_COUNTER_COMPRESSOR;
-			if (safe_mode && unlikely ((op_control_available == 0) && (op >= dest_end_ptr) && (op_control[-3] != 0))) {
+			if (safe_mode & unlikely ((op_control_available == 0) & (op >= dest_end_ptr) & (op_control[-3] != 0))) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error;
 			}
