@@ -23,8 +23,9 @@ function cleanAll {
 	cd memcpy/test && make clean && cd ../..
 	cd bewalgo/test && make clean && cd ../..
 	cd bewalgo-if-vs-terniary/test && make clean && cd ../..
-	cd bewalgo-boolean-vs-binary/test && make clean && cd ../..
+	cd bewalgo-boolean-vs-binary-operator/test && make clean && cd ../..
 	cd bewalgo-no-inline/test && make clean && cd ../..
+	cd bewalgo-find-match-only/test && make clean && cd ../..
 }
 
 cleanAll
@@ -35,11 +36,13 @@ do
 	removeModules
 	cd bewalgo-if-vs-terniary/test && ./run_benchmarks_final.sh && cd ../..
 	removeModules
-	cd bewalgo-boolean-vs-binary/test && ./run_benchmarks_final.sh && cd ../..
+	cd bewalgo-boolean-vs-binary-operator/test && ./run_benchmarks_final.sh && cd ../..
 	removeModules
-	cd bewalgo-no-inline/test && ./run_benchmarks_final.sh && cd ../..
+	cd bewalgo-find-match-only/test && ./run_benchmarks_final.sh && cd ../..
 	removeModules
 	cd parallel/test && ./run_benchmarks_final.sh && cd ../..
+	removeModules
+	cd bewalgo-no-inline/test && ./run_benchmarks_final.sh && cd ../..
 	removeModules
 	cd lz4/test && ./run_benchmarks_final.sh && cd ../..
 	removeModules

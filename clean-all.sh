@@ -23,8 +23,9 @@ function cleanAll {
 	cd memcpy/test && make clean && cd ../..
 	cd bewalgo/test && make clean && cd ../..
 	cd bewalgo-if-vs-terniary/test && make clean && cd ../..
-	cd bewalgo-boolean-vs-binary/test && make clean && cd ../..
+	cd bewalgo-boolean-vs-binary-operator/test && make clean && cd ../..
 	cd bewalgo-no-inline/test && make clean && cd ../..
+	cd bewalgo-find-match-only/test && make clean && cd ../..
 }
 
 cleanAll

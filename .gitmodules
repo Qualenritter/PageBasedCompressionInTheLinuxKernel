@@ -30,3 +30,7 @@
 	path = bewalgo-if-vs-terniary
 	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
 	branch = bewalgo-if-vs-terniary
+[submodule "bewalgo-find-match-only"]
+	path = bewalgo-find-match-only
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = bewalgo-find-match-only
