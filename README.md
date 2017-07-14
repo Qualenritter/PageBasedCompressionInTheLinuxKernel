@@ -11,11 +11,11 @@ The file **generic_compressor.h** contains the interface definition which every 
 # generic_compress_test.h
 The file **generic_compress_test.h** contains code with different unit tests for compression and decompression code. To use this thest the **generic_compressor** interface must be used. During the unit tests the compressed version of the data is saved using an absolute path: **/tmp/data/data.compressed**
 
-```c
+```C
 #include "path/to/your_compressor.h"
-static const generic_compressor* const compressor_linear			= &your_generic_compressor_linear;
-static const generic_compressor* const compressor_page				= &your_generic_compressor_page;
-static const int					   too_small_bounds_substractor = how_many_bytes_should_be_at_least_substracted_for_this_kind_of_test;
+static const generic_compressor* const compressor_linear = &your_generic_compressor_linear;
+static const generic_compressor* const compressor_page = &your_generic_compressor_page;
+static const int too_small_bounds_substractor = how_many_bytes_should_be_at_least_substracted_for_this_kind_of_test;
 #include "generic_compress_test.h"
 ```
 
@@ -24,8 +24,8 @@ The file **generic_compress_test_time.h** contains code for running benchmark te
 
 ```c
 #include "path/to/your_compressor.h"
-static const generic_compressor* const compressor_linear			= &your_generic_compressor_linear;
-static const generic_compressor* const compressor_page				= &your_generic_compressor_page;
+static const generic_compressor* const compressor_linear = &your_generic_compressor_linear;
+static const generic_compressor* const compressor_page = &your_generic_compressor_page;
 #include "generic_compress_test.h"
 ```
 
