@@ -435,7 +435,7 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 			if (safe_mode) {
 				int control_blocks_needed = match_length_div_255 + match_nzero - op_control_available;
 				INC_COUNTER_COMPRESSOR;
-				if (safe_mode && unlikely ((op->position + (((control_blocks_needed) >> 1) + (control_blocks_needed & 1))) > dest_end)) {
+				if (safe_mode & unlikely ((op->position + (((control_blocks_needed) >> 1) + (control_blocks_needed & 1))) > dest_end)) {
 					INC_COUNTER_COMPRESSOR;
 					goto _error_dest_end;
 				}
@@ -470,7 +470,7 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 			}
 			length = match_length_mod_255;
 #else
-			if (safe_mode && unlikely ((op->position + match_length_div_255 + match_nzero) > dest_end)) {
+			if (safe_mode & unlikely ((op->position + match_length_div_255 + match_nzero) > dest_end)) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error_dest_end;
 			}
@@ -482,7 +482,7 @@ static bewalgo_compress_always_inline int bewalgo_page_compress_generic (bewalgo
 		if (likely (length > 0)) {
 			/* encode a short (end of) a match */
 			INC_COUNTER_COMPRESSOR;
-			if (safe_mode && unlikely ((op_control_available == 0) && (op->position >= dest_end) && (op_control[-3] != 0))) {
+			if (safe_mode & unlikely ((op_control_available == 0) & (op->position >= dest_end) & (op_control[-3] != 0))) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error_dest_end;
 			}
