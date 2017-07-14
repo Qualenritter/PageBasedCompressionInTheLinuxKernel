@@ -1,0 +1,20 @@
+[submodule "lz4"]
+	path = lz4
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = lz4
+[submodule "memcpy"]
+	path = memcpy
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = memcpy
+[submodule "bewalgo"]
+	path = bewalgo
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = bewalgo
+[submodule "interfaces"]
+	path = interfaces
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = interfaces
+[submodule "parallel"]
+	path = parallel
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = parallel
