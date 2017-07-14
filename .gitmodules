@@ -1,0 +1,4 @@
+[submodule "interfaces"]
+	path = interfaces
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = interfaces
