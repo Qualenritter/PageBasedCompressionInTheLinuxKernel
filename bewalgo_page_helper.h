@@ -437,7 +437,7 @@ static bewalgo_compress_always_inline void bewalgo_page_helper_copy_long (bewalg
 	INC_COUNTER_PAGE_HELPER;
 	page_helper_dest->position += length;
 	page_helper_source->position += length;
-	if ((length <= dest_available) && (length <= source_available)) {
+	if ((length <= dest_available) & (length <= source_available)) {
 		INC_COUNTER_PAGE_HELPER;
 		goto _finish;
 	}
