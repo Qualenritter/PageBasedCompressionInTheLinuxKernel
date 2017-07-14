@@ -27,7 +27,7 @@ static bewalgo_compress_always_inline int
 	U32										to_read;
 	U32										avail;
 	do {
-		if ((safe_mode == BEWALGO_UNSAFE) & unlikely (dest_end_ptr <= op))
+		if ((safe_mode == BEWALGO_UNSAFE) && unlikely (dest_end_ptr <= op))
 			goto _last_control_block; /* finish? */
 		controll_block_ptr = (BYTE*) ip;
 		ip++;
