@@ -18,3 +18,11 @@
 	path = parallel
 	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
 	branch = parallel
+[submodule "bewalgo-no-inline"]
+	path = bewalgo-no-inline
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = bewalgo-no-inline
+[submodule "bewalgo-boolean-vs-binary-operator"]
+	path = bewalgo-boolean-vs-binary-operator
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = bewalgo-boolean-vs-binary-operator
