@@ -38,3 +38,7 @@
 	path = lz4-find-match-only
 	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
 	branch = lz4-find-match-only
+[submodule "lz4-no-inline"]
+	path = lz4-no-inline
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = lz4-no-inline

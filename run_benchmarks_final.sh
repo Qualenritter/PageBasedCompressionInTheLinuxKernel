@@ -27,40 +27,45 @@ function cleanAll {
 	cd bewalgo-no-inline/test && make clean && cd ../..
 	cd bewalgo-find-match-only/test && make clean && cd ../..
 	cd lz4-find-match-only/test && make clean && cd ../..
+	cd lz4-no-inline/test && make clean && cd ../..
 }
 
 cleanAll
 
+currentpath=`pwd`
+
+rm -f 1 2 3 4 5
+echo "" > status.out
+echo "" > nohup.out
+chown benjamin:benjamin nohup.out
+chown benjamin:benjamin status.out
+
+for module in "lz4" "bewalgo"
+do
+	for i in 1 2 3 4 5
+	do
+		removeModules
+		echo "${module}-${i}-fast" >> status.out
+		cd "${currentpath}/${module}/test" && ./run_benchmarks_fast.sh
+	done
+done
+for module in "lz4-no-inline" "lz4-find-match-only" "bewalgo-no-inline" "bewalgo-find-match-only" "bewalgo-if-vs-terniary" "bewalgo-boolean-vs-binary-operator"
+do
+	for i in 1 2 3 4 5
+	do
+		removeModules
+		echo "${module}-${i}-final" >> status.out
+		cd "${currentpath}/${module}/test" && ./run_benchmarks_final.sh
+	done
+done
 for i in 1 2 3 4 5
 do
-	echo ""> $i
-	removeModules
-	cd bewalgo-if-vs-terniary/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd bewalgo-boolean-vs-binary-operator/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd bewalgo-find-match-only/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd bewalgo-no-inline/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd lz4-find-match-only/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd parallel/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd lz4/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd memcpy/test && ./run_benchmarks_final.sh
-	cd ../..
-	removeModules
-	cd bewalgo/test && ./run_benchmarks_final.sh
-	cd ../..
+	for module in "parallel" "lz4" "bewalgo"
+	do
+		removeModules
+		echo "${module}-${i}-final" >> status.out
+		cd "${currentpath}/${module}/test" && ./run_benchmarks_final.sh
+	done
 done
 
 cleanAll
