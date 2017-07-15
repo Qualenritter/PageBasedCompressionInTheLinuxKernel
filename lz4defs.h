@@ -39,7 +39,7 @@
 #include <linux/string.h> /* memset, memcpy */
 
 //#define FORCE_INLINE __always_inline
-#define FORCE_INLINE __always_inline
+#define FORCE_INLINE
 
 /*-************************************
  *	Basic Types

@@ -44,7 +44,7 @@ const generic_compressor lz4_generic_compressor_linear = {.compress_default				 
 														  .decompress_fast				   = &_lz4_decompress_linear_fast,
 														  .generic_compressor_memory	   = GENERIC_COMPRESSOR_LINEAR,
 														  .compress_bound				   = &_lz4_compress_bound,
-														  .compressor_name				   = "LZ4-linear",
+														  .compressor_name				   = "LZ4-linear-no-inline",
 														  .compress_wrkmem				   = LZ4_MEM_COMPRESS,
 														  .generic_compressor_concatenable = GENERIC_COMPRESSOR_NOT_CONCATABLE };
 EXPORT_SYMBOL (lz4_generic_compressor_linear);
@@ -54,7 +54,7 @@ const generic_compressor lz4_generic_compressor_page = {.compress_default				 = 
 														.decompress_fast				 = &_lz4_decompress_page_fast,
 														.generic_compressor_memory		 = GENERIC_COMPRESSOR_PAGE,
 														.compress_bound					 = &_lz4_compress_bound,
-														.compressor_name				 = "LZ4-page",
+														.compressor_name				 = "LZ4-page-no-inline",
 														.compress_wrkmem				 = LZ4_MEM_COMPRESS,
 														.generic_compressor_concatenable = GENERIC_COMPRESSOR_NOT_CONCATABLE };
 EXPORT_SYMBOL (lz4_generic_compressor_page);
