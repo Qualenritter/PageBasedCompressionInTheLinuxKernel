@@ -11,3 +11,5 @@
 /.cproject
 /.settings
 .DS_Store
+nohup.out
+status.out
