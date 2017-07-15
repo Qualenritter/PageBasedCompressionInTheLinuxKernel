@@ -34,3 +34,7 @@
 	path = bewalgo-find-match-only
 	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
 	branch = bewalgo-find-match-only
+[submodule "lz4-find-match-only"]
+	path = lz4-find-match-only
+	url = https://github.com/Qualenritter/PageBasedCompressionInTheLinuxKernel.git
+	branch = lz4-find-match-only
