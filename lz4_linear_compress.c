@@ -154,36 +154,11 @@ static FORCE_INLINE int LZ4_compress_generic (LZ4_stream_t_internal* const dictP
 		}
 
 		/* Encode Literals */
-		{
-			unsigned const int litLength = (unsigned int) (ip - anchor);
-
-			token = op++;
-
-			if ((outputLimited) &&
-				/* Check output buffer overflow */
-				(unlikely (op + litLength + (2 + 1 + LASTLITERALS) + (litLength / 255) > olimit)))
-				return 0;
-
-			if (litLength >= RUN_MASK) {
-				int len = (int) litLength - RUN_MASK;
-
-				*token = (RUN_MASK << ML_BITS);
-
-				for (; len >= 255; len -= 255)
-					*op++ = 255;
-				*op++	 = (BYTE) len;
-			} else
-				*token = (BYTE) (litLength << ML_BITS);
-
-			/* Copy Literals */
-			LZ4_wildCopy (op, anchor, op + litLength);
-			op += litLength;
-		}
+		{ /* removed code */ }
 
 	_next_match:
 		/* Encode Offset */
-		LZ4_writeLE16 (op, (U16) (ip - match));
-		op += 2;
+		/* removed code */
 
 		/* Encode MatchLength */
 		{
@@ -213,26 +188,7 @@ static FORCE_INLINE int LZ4_compress_generic (LZ4_stream_t_internal* const dictP
 				ip += MINMATCH + matchCode;
 			}
 
-			if (outputLimited &&
-				/* Check output buffer overflow */
-				(unlikely (op + (1 + LASTLITERALS) + (matchCode >> 8) > olimit)))
-				return 0;
-
-			if (matchCode >= ML_MASK) {
-				*token += ML_MASK;
-				matchCode -= ML_MASK;
-				LZ4_write32 (op, 0xFFFFFFFF);
-
-				while (matchCode >= 4 * 255) {
-					op += 4;
-					LZ4_write32 (op, 0xFFFFFFFF);
-					matchCode -= 4 * 255;
-				}
-
-				op += matchCode / 255;
-				*op++ = (BYTE) (matchCode % 255);
-			} else
-				*token += (BYTE) (matchCode);
+			/* removed code */
 		}
 
 		anchor = ip;
@@ -260,8 +216,7 @@ static FORCE_INLINE int LZ4_compress_generic (LZ4_stream_t_internal* const dictP
 		LZ4_putPosition (ip, dictPtr->hashTable, tableType, base);
 
 		if (((dictIssue == LZ4_dictSmall) ? (match >= lowRefLimit) : 1) && (match + MAX_DISTANCE >= ip) && (LZ4_read32 (match + refDelta) == LZ4_read32 (ip))) {
-			token  = op++;
-			*token = 0;
+			/* removed code */
 			goto _next_match;
 		}
 
@@ -271,31 +226,10 @@ static FORCE_INLINE int LZ4_compress_generic (LZ4_stream_t_internal* const dictP
 
 _last_literals:
 	/* Encode Last Literals */
-	{
-		size_t const lastRun = (size_t) (iend - anchor);
-
-		if ((outputLimited) &&
-			/* Check output buffer overflow */
-			((op - (BYTE*) dest) + lastRun + 1 + ((lastRun + 255 - RUN_MASK) / 255) > (U32) maxOutputSize))
-			return 0;
-
-		if (lastRun >= RUN_MASK) {
-			size_t accumulator = lastRun - RUN_MASK;
-			*op++			   = RUN_MASK << ML_BITS;
-			for (; accumulator >= 255; accumulator -= 255)
-				*op++ = 255;
-			*op++	 = (BYTE) accumulator;
-		} else {
-			*op++ = (BYTE) (lastRun << ML_BITS);
-		}
-
-		memcpy (op, anchor, lastRun);
-
-		op += lastRun;
-	}
+	{ /* removed code */ }
 
 	/* End */
-	return (int) (((char*) op) - dest);
+	return 0;
 }
 
 static int LZ4_compress_fast_extState (void* state, const char* source, char* dest, int inputSize, int maxOutputSize, int acceleration) {

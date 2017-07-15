@@ -123,16 +123,6 @@ static FORCE_INLINE int LZ4_pages_compress_generic (LZ4_stream_t_internal* const
 	unsigned int	   searchMatchNb;
 	unsigned int	   searchMatchNbLimit;
 	page_access_helper out_helper;
-	size_t			   match_length;
-	size_t			   match_length_tmp;
-	BYTE			   match_length_masked;
-	size_t			   match_length_div_255;
-	size_t			   match_length_mod_255;
-	size_t			   literal_length;
-	size_t			   literal_length_tmp;
-	BYTE			   literal_length_masked;
-	size_t			   literal_length_div_255;
-	size_t			   literal_length_mod_255;
 	U32				   forwardH;
 	U32				   h;
 	BYTE			   data8	   = 0;
@@ -273,27 +263,10 @@ static FORCE_INLINE int LZ4_pages_compress_generic (LZ4_stream_t_internal* const
 		}
 		LZ4_pages_helper_seek (&in_helper_ip, 1 + MINMATCH);
 		LZ4_pages_helper_seek (&in_helper_match, 1 + MINMATCH);
-		literal_length		   = in_helper_ip.offset - MINMATCH - in_helper_anchor.offset;
-		match_length		   = LZ4_pages_count_continue (&in_helper_ip, &in_helper_match, matchlimit - in_helper_ip.offset);
-		literal_length_masked  = (literal_length >= RUN_MASK) ? RUN_MASK : literal_length;
-		match_length_masked	= (match_length >= ML_MASK) ? ML_MASK : match_length;
-		literal_length_tmp	 = literal_length - literal_length_masked;
-		match_length_tmp	   = match_length - match_length_masked;
-		literal_length_mod_255 = literal_length_tmp % 255;
-		literal_length_div_255 = literal_length_tmp / 255;
-		match_length_mod_255   = match_length_tmp % 255;
-		match_length_div_255   = match_length_tmp / 255;
-		if ((outputLimited) && (unlikely (out_helper.offset + TOKEN_BYTE_COUNT + (literal_length_div_255 + 1 + literal_length) + (OFFSET_BYTE_COUNT + match_length_div_255 + 1) > maxOutputSize)))
-			goto _error;
-		LZ4_pages_write8_continue (&out_helper, (literal_length_masked << ML_BITS) + match_length_masked);
-		LZ4_pages_encode_number_continue (&out_helper, literal_length, RUN_MASK, literal_length_div_255, literal_length_mod_255);
-		APPEND_LOG ("literal,%d\n", literal_length);
-		LZ4_pages_memcpy_continue (&out_helper, &in_helper_anchor, literal_length);
+		LZ4_pages_count_continue (&in_helper_ip, &in_helper_match, matchlimit - in_helper_ip.offset);
+		/* removed code */
 		LZ4_pages_helper_clone (&in_helper_anchor, &in_helper_ip);
-		LZ4_pages_write16_continue (&out_helper, in_helper_ip.offset - in_helper_match.offset);
-		APPEND_LOG ("offset,%d\n", (in_helper_ip.offset - in_helper_match.offset));
-		LZ4_pages_encode_number_continue (&out_helper, match_length, ML_MASK, match_length_div_255, match_length_mod_255);
-		APPEND_LOG ("match,%d\n", match_length);
+	/* removed code */
 	_next_match:
 		/* Test end of chunk */
 		if (in_helper_ip.offset > mflimit)
@@ -334,20 +307,9 @@ static FORCE_INLINE int LZ4_pages_compress_generic (LZ4_stream_t_internal* const
 			LZ4_pages_helper_seek (&in_helper_ip, -1);
 		}
 		if ((in_helper_match.offset + MAX_DISTANCE + MINMATCH >= in_helper_ip.offset) && (LZ4_pages_read32_continue (&in_helper_match) == data32cache)) {
-			match_length		= LZ4_pages_count_continue (&in_helper_ip, &in_helper_match, matchlimit - in_helper_ip.offset);
-			match_length_masked = (match_length >= ML_MASK) ? ML_MASK : match_length;
+			LZ4_pages_count_continue (&in_helper_ip, &in_helper_match, matchlimit - in_helper_ip.offset);
 			LZ4_pages_helper_clone (&in_helper_anchor, &in_helper_ip);
-			match_length_tmp	 = match_length - match_length_masked;
-			match_length_mod_255 = match_length_tmp % 255;
-			match_length_div_255 = match_length_tmp / 255;
-			if (outputLimited && (unlikely (out_helper.offset + TOKEN_BYTE_COUNT + OFFSET_BYTE_COUNT + match_length_div_255 + 1 > maxOutputSize)))
-				goto _error;
-			LZ4_pages_write8_continue (&out_helper, match_length_masked);
-			APPEND_LOG ("literal,%d\n", 0);
-			LZ4_pages_write16_continue (&out_helper, in_helper_ip.offset - in_helper_match.offset);
-			APPEND_LOG ("offset,%d\n", (in_helper_ip.offset - in_helper_match.offset));
-			LZ4_pages_encode_number_continue (&out_helper, match_length, ML_MASK, match_length_div_255, match_length_mod_255);
-			APPEND_LOG ("match,%d\n", match_length);
+			/* removed code */
 			goto _next_match;
 		}
 		LZ4_pages_helper_seek (&in_helper_ip, -3);
@@ -356,17 +318,7 @@ static FORCE_INLINE int LZ4_pages_compress_generic (LZ4_stream_t_internal* const
 _last_literals_seek:
 	LZ4_pages_helper_seek (&in_helper_ip, -hash_byte_count);
 _last_literals:
-	literal_length		   = (inputSize - in_helper_anchor.offset);
-	literal_length_masked  = (literal_length >= RUN_MASK) ? RUN_MASK : literal_length;
-	literal_length_tmp	 = literal_length - literal_length_masked;
-	literal_length_mod_255 = literal_length_tmp % 255;
-	literal_length_div_255 = literal_length_tmp / 255;
-	if ((outputLimited) && (out_helper.offset + 1 + literal_length_div_255 + (literal_length >= RUN_MASK) + literal_length > maxOutputSize))
-		goto _error;
-	LZ4_pages_write8_continue (&out_helper, literal_length_masked << ML_BITS);
-	LZ4_pages_encode_number_continue (&out_helper, literal_length, RUN_MASK, literal_length_div_255, literal_length_mod_255);
-	APPEND_LOG ("literal,%d\n", literal_length);
-	LZ4_pages_memcpy_continue (&out_helper, &in_helper_anchor, literal_length);
+	/* removed code */
 
 	LZ4_pages_helper_free (&out_helper);
 	LZ4_pages_helper_free (&in_helper_ip);
@@ -375,7 +327,7 @@ _last_literals:
 #ifdef LOG_STATISTICS
 	close_log_file ();
 #endif
-	return out_helper.offset;
+	return 0;
 _error:
 	LZ4_pages_helper_free (&out_helper);
 	LZ4_pages_helper_free (&in_helper_ip);
