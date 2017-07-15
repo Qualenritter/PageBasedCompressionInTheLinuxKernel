@@ -25,7 +25,7 @@ if [ "$?" -eq "0" ]; then
 			sourcefilelength=`du --bytes "${filenames[$fileindex]}" | cut -f1`
 			sourcefilelength=$(( $sourcefilelength / 8 ))
 			sourcefilelength=$(( $sourcefilelength * 8 ))
-			for var_accelleration in 1 2 4 8
+			for var_accelleration in 1
 			do
 				echo "var_accelleration=${var_accelleration} var_datatype=${var_datatype} sourcefilelength=${sourcefilelength} filename=${filenames[$fileindex]} "
 				for timemode in 1 2
