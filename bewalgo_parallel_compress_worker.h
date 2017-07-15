@@ -49,19 +49,19 @@ int bewalgo_parallel_compress_fast (const generic_compressor* generic_compressor
 
 #define BEWALGO_DEFINE_PARALLEL_COMPRESSOR(name, compressor, name_string, memory)                                                                            \
 	static int name##_bound (int isize) {                                                                                                                    \
-		return BEWALGO_COMPRESS_BOUND_CHUNK (isize, BEWALGO_PARALLEL_COMPRESS_CHUNK_SIZE_DEFAULT, (&compressor));                                            \
+	printk(#name "_bound\n");	return BEWALGO_COMPRESS_BOUND_CHUNK (isize, BEWALGO_PARALLEL_COMPRESS_CHUNK_SIZE_DEFAULT, (&compressor));                                            \
 	}                                                                                                                                                        \
 	static int name##_compress_fast (void* wrkmem, void* const source, void* const dest, const int source_length, const int dest_length, int acceleration) { \
-		return bewalgo_parallel_compress_fast (&compressor, source, dest, source_length, dest_length, acceleration);                                         \
+	printk(#name "_compress_fast\n");	return bewalgo_parallel_compress_fast (&compressor, source, dest, source_length, dest_length, acceleration);                                         \
 	}                                                                                                                                                        \
 	static int name##_compress_default (void* wrkmem, void* const source, void* const dest, const int source_length, const int dest_length) {                \
-		return bewalgo_parallel_compress_fast (&compressor, source, dest, source_length, dest_length, BEWALGO_ACCELERATION_DEFAULT);                         \
+	printk(#name "_compress_default\n");	return bewalgo_parallel_compress_fast (&compressor, source, dest, source_length, dest_length, BEWALGO_ACCELERATION_DEFAULT);                         \
 	}                                                                                                                                                        \
 	static int name##_decompress_save (void* const source, void* const dest, const int source_length, const int dest_length) {                               \
-		return compressor.decompress_save (source, dest, source_length, dest_length);                                                                        \
+	printk(#name "_decompress_save\n");	return compressor.decompress_save (source, dest, source_length, dest_length);                                                                        \
 	}                                                                                                                                                        \
 	static int name##_decompress_fast (void* const source, void* const dest, const int source_length, const int dest_length) {                               \
-		return compressor.decompress_fast (source, dest, source_length, dest_length);                                                                        \
+	printk(#name "_decompress_fast\n");	return compressor.decompress_fast (source, dest, source_length, dest_length);                                                                        \
 	}                                                                                                                                                        \
 	const generic_compressor name = {.compress_default				  = &name##_compress_default,                                                            \
 									 .compress_fast					  = &name##_compress_fast,                                                               \

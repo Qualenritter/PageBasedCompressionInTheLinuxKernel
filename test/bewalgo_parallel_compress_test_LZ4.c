@@ -11,6 +11,6 @@ static generic_compressor* compressor_linear			= &generic_compressor_parallel_li
 static generic_compressor* compressor_page				= &generic_compressor_parallel_page_lz4;
 static int				   too_small_bounds_substractor = 1;
 
-#define BEWALGO_SIMPLE_TEST
+#define SIMPLE_TEST
 
 #include "../interfaces/generic_compress_test.h"
