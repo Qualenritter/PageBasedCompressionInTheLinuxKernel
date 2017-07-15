@@ -28,8 +28,7 @@ if [ "$?" -eq "0" ]; then
 			echo "var_accelleration=${var_accelleration} sourcefilelength=${sourcefilelength} filename=${filenames[$fileindex]} "
 			for timemode in 1 2
 			do
-				destfilelength=`du --bytes "/tmp/data/data.compressed"  | cut -f1`
-				insmod "lz4_compress_test_time.ko" time_mode=$timemode compress_mode=1 input_file_length=$sourcefilelength output_file_length=$destfilelength input_file_name="${filenames[$fileindex]}" time_multiplicator=$targettime acceleration=$var_accelleration
+				insmod "lz4_compress_test_time.ko" time_mode=$timemode compress_mode=1 input_file_length=$sourcefilelength output_file_length=$sourcefilelength input_file_name="${filenames[$fileindex]}" time_multiplicator=$targettime acceleration=$var_accelleration
 				if [ "$?" -ne "0" ]; then
 					rmmod "lz4_compress_test_time"
 					make clean
