@@ -12,6 +12,6 @@ static const generic_compressor* const compressor_linear			= &lz4_generic_compre
 static const generic_compressor* const compressor_page				= &lz4_generic_compressor_page;
 static int							   too_small_bounds_substractor = 1;
 
-#define B_SIMPLE_TEST
+#define SIMPLE_TEST
 
 #include "../interfaces/generic_compress_test.h"
