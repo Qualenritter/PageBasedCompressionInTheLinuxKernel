@@ -42,7 +42,7 @@ typedef struct { U32 table[BEWALGO_HASH_SIZE_U32]; } bewalgo_compress_internal;
 #define BEWALGO_MEM_COMPRESS sizeof (bewalgo_compress_internal)
 
 typedef enum { BEWALGO_UNSAFE = 0, BEWALGO_SAFE = 1 } bewalgo_safety_mode;
-typedef enum { BEWALGO_NO_OFFSET_CHECK = 0, BEWALGO_OFFSET_CHECK = 1 } bewalgo_offset_check;
+typedef enum { BEWALGO_OFFSET_CHECK = 0, BEWALGO_NO_OFFSET_CHECK = 1 } bewalgo_offset_check;
 
 /********************************************************************************/
 

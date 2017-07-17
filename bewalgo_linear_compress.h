@@ -77,7 +77,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			h				 = bewalgo_compress_hash (*ip);
 			match			 = source + wrkmem->table[h];
 			wrkmem->table[h] = ip - source;
-			if ((*(U64*) match == *(U64*) ip) & ((offset_check == BEWALGO_NO_OFFSET_CHECK) || (ip - match <= BEWALGO_OFFSET_MAX))) {
+			if ((*(U64*) match == *(U64*) ip) && (offset_check || (ip - match <= BEWALGO_OFFSET_MAX))) {
 				INC_COUNTER_COMPRESSOR;
 				goto _find_match_left;
 			}
@@ -102,7 +102,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			h				 = bewalgo_compress_hash (*ip);
 			match			 = source + wrkmem->table[h];
 			wrkmem->table[h] = ip - source;
-			if ((*(U64*) match == *(U64*) ip) & ((offset_check == BEWALGO_NO_OFFSET_CHECK) || (ip - match <= BEWALGO_OFFSET_MAX))) {
+			if ((*(U64*) match == *(U64*) ip) && (offset_check || (ip - match <= BEWALGO_OFFSET_MAX))) {
 				INC_COUNTER_COMPRESSOR;
 				goto _find_match_left;
 			}
@@ -209,10 +209,10 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			int	match_zero			= match_length_mod_255 == 0;
 			int	match_nzero			= !match_zero;
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
-			if (safe_mode == BEWALGO_SAFE) {
+			if (safe_mode) {
 				INC_COUNTER_COMPRESSOR;
 				int control_blocks_needed = match_length_div_255 + match_nzero - op_control_available;
-				if (safe_mode & unlikely ((op + ((control_blocks_needed >> 1) + (control_blocks_needed & 1))) > dest_end_ptr)) {
+				if (safe_mode && unlikely ((op + ((control_blocks_needed >> 1) + (control_blocks_needed & 1))) > dest_end_ptr)) {
 					INC_COUNTER_COMPRESSOR;
 					goto _error;
 				}
@@ -251,7 +251,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 				op_control_available = (match_length_div_255 & 1) == match_zero;
 			}
 #else
-			if (safe_mode & unlikely ((op + match_length_div_255 + match_nzero) > dest_end_ptr)) {
+			if (safe_mode && unlikely ((op + match_length_div_255 + match_nzero) > dest_end_ptr)) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error;
 			}
@@ -272,7 +272,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		} else {
 			/* encode a short match */
 			INC_COUNTER_COMPRESSOR;
-			if (safe_mode & unlikely ((op_control_available == 0) & (op >= dest_end_ptr) & (op_control[-3] != 0))) {
+			if (safe_mode && unlikely ((op_control_available == 0) && (op >= dest_end_ptr) && (op_control[-3] != 0))) {
 				INC_COUNTER_COMPRESSOR;
 				goto _error;
 			}
@@ -314,7 +314,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		h				 = bewalgo_compress_hash (*ip);
 		match			 = source + wrkmem->table[h];
 		wrkmem->table[h] = ip - source;
-		if ((*(U64*) match == *(U64*) ip) & ((offset_check == BEWALGO_NO_OFFSET_CHECK) || (ip - match <= BEWALGO_OFFSET_MAX))) {
+		if ((*(U64*) match == *(U64*) ip) && (offset_check || (ip - match <= BEWALGO_OFFSET_MAX))) {
 			INC_COUNTER_COMPRESSOR;
 			/* consecutive match */
 			goto _find_match_right;
