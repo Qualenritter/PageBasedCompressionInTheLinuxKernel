@@ -74,7 +74,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			h				 = bewalgo_compress_hash (*ip);
 			match			 = source + wrkmem->table[h];
 			wrkmem->table[h] = ip - source;
-			if ((*(U64*) match == *(U64*) ip) & ((offset_check == BEWALGO_NO_OFFSET_CHECK) || (ip - match <= BEWALGO_OFFSET_MAX))) {
+			if ((*(U64*) match == *(U64*) ip) && (offset_check || (ip - match <= BEWALGO_OFFSET_MAX))) {
 				INC_COUNTER_COMPRESSOR;
 				goto _find_match_left;
 			}
@@ -99,7 +99,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 			h				 = bewalgo_compress_hash (*ip);
 			match			 = source + wrkmem->table[h];
 			wrkmem->table[h] = ip - source;
-			if ((*(U64*) match == *(U64*) ip) & ((offset_check == BEWALGO_NO_OFFSET_CHECK) || (ip - match <= BEWALGO_OFFSET_MAX))) {
+			if ((*(U64*) match == *(U64*) ip) && (offset_check || (ip - match <= BEWALGO_OFFSET_MAX))) {
 				INC_COUNTER_COMPRESSOR;
 				goto _find_match_left;
 			}
@@ -121,7 +121,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		/* save the found literal to output buffer */
 		INC_COUNTER_COMPRESSOR;
 		/* write code omited */
-		ip = anchor;
+		anchor = ip;
 	_find_match_right:
 		/* find the right end of a match */
 		INC_COUNTER_COMPRESSOR;
@@ -156,7 +156,7 @@ static bewalgo_compress_always_inline int bewalgo_linear_compress_generic (bewal
 		h				 = bewalgo_compress_hash (*ip);
 		match			 = source + wrkmem->table[h];
 		wrkmem->table[h] = ip - source;
-		if ((*(U64*) match == *(U64*) ip) & ((offset_check == BEWALGO_NO_OFFSET_CHECK) || (ip - match <= BEWALGO_OFFSET_MAX))) {
+		if ((*(U64*) match == *(U64*) ip) && (offset_check || (ip - match <= BEWALGO_OFFSET_MAX))) {
 			INC_COUNTER_COMPRESSOR;
 			/* consecutive match */
 			goto _find_match_right;

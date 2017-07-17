@@ -25,7 +25,7 @@ static bewalgo_compress_always_inline int
 	U32						   avail;
 	bewalgo_page_helper_clone (match, op);
 	do {
-		if ((safe_mode == BEWALGO_UNSAFE) & unlikely (dest_end <= op->position))
+		if (!safe_mode && unlikely (dest_end <= op->position))
 			goto _last_control_block; /* finish? */
 		if (ip->page_pointer == ip->page_pointer_end) {
 			INC_COUNTER_PAGE_HELPER;
@@ -33,7 +33,7 @@ static bewalgo_compress_always_inline int
 		}
 		ip->position++;
 		controll_block = *(ip->page_pointer)++;
-		if (safe_mode == BEWALGO_SAFE) {
+		if (safe_mode) {
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
 			len_src  = controll_block_ptr[0] + controll_block_ptr[4];
 			len_dest = len_src + controll_block_ptr[1] + controll_block_ptr[5];
