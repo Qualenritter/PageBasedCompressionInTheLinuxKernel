@@ -27,11 +27,11 @@ static bewalgo_compress_always_inline int
 	U32										to_read;
 	U32										avail;
 	do {
-		if ((safe_mode == BEWALGO_UNSAFE) & unlikely (dest_end_ptr <= op))
+		if (!safe_mode && unlikely (dest_end_ptr <= op))
 			goto _last_control_block; /* finish? */
 		controll_block_ptr = (BYTE*) ip;
 		ip++;
-		if (safe_mode == BEWALGO_SAFE) {
+		if (safe_mode) {
 #if BEWALGO_COMPRESS_DATA_TYPE_SHIFT == 3
 			len_src  = *(controll_block_ptr) + *(controll_block_ptr + 4);
 			len_dest = len_src + *(controll_block_ptr + 1) + *(controll_block_ptr + 5);
