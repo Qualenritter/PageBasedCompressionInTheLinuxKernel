@@ -39,33 +39,18 @@ echo "" > status.out
 echo "" > nohup.out
 chown benjamin:benjamin nohup.out
 chown benjamin:benjamin status.out
-
-for module in "lz4" "bewalgo"
+for j in 1 2 3 4 5 6
 do
-	for i in 1 2 3 4 5
+	echo "major number : ${j}" >> "${currentpath}/status.out"
+	for module in  "memcpy" "lz4" "bewalgo" "parallel" "lz4-no-inline" "lz4-find-match-only" "bewalgo-no-inline" "bewalgo-find-match-only" "bewalgo-if-vs-terniary" "bewalgo-boolean-vs-binary-operator"
 	do
-		removeModules
-		echo "${module}-${i}-fast" >> status.out
-		cd "${currentpath}/${module}/test" && ./run_benchmarks_fast.sh
+		for i in 1 2 3 4 5
+		do
+			removeModules
+			echo "${module}-${i}-final" >> "${currentpath}/status.out"
+			cd "${currentpath}/${module}/test" && ./run_benchmarks_final.sh
+		done
+exit 0
 	done
+	cleanAll
 done
-for module in "lz4-no-inline" "lz4-find-match-only" "bewalgo-no-inline" "bewalgo-find-match-only" "bewalgo-if-vs-terniary" "bewalgo-boolean-vs-binary-operator"
-do
-	for i in 1 2 3 4 5
-	do
-		removeModules
-		echo "${module}-${i}-final" >> status.out
-		cd "${currentpath}/${module}/test" && ./run_benchmarks_final.sh
-	done
-done
-for i in 1 2 3 4 5
-do
-	for module in "parallel" "lz4" "bewalgo"
-	do
-		removeModules
-		echo "${module}-${i}-final" >> status.out
-		cd "${currentpath}/${module}/test" && ./run_benchmarks_final.sh
-	done
-done
-
-cleanAll
